@@ -4,6 +4,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "lfsr.h"
 
 int main ( int argc, char **argv )
 {
@@ -46,17 +47,33 @@ int main ( int argc, char **argv )
 
   // Get password
   std::cout << "Password size: " << password.size() << std::endl;
+  char magic[8] = {0x35, 0x75, 0x65, 0x7a, 0x53, 0x04, 0x6c, 0x77};
   char scramb[8] = {0,0,0,0,0,0,0,0};
+  uint64_t ifill = 0;
   if (argc == 4) {
     for (unsigned int ii = 0; ii < password.size(); ++ii) {
-      scramb[ii] = password[ii];
+      scramb[ii] = password[ii] ^ magic[ii];
+      ifill = (ifill << 8) + scramb[ii];
     }
   }
   std::cout << "Scrambling integer: ";
-  for (int kk = 0; kk < 8; ++kk) {
-    std::cout << scramb[kk];
+  for (int ii = 0; ii < 8; ++ii) {
+    std::cout << scramb[ii];
   }
   std::cout << std::endl;
+
+  // Scrambler
+  const int seq_length = 128;
+  int degree = 42;
+  uint64_t fill = ifill & (1ull << degree) - 1;
+  uint64_t taps = (1ull << 42) + (1ull << 40) + (1ull << 37) + (1ull << 35) + 1;
+  const int jump = 987654;
+  lfsr msrg(taps, ifill, "msrg");
+  std::vector<char> seq;
+  for (int ii = 0; ii < seq_length; ++ii) {
+    fill = msrg.jump(jump);
+    seq.push_back(fill & 0xff);
+  }
 
   // Open input file for read
   ifile.open(infile, std::ios::in|std::ios::binary);
@@ -81,7 +98,7 @@ int main ( int argc, char **argv )
   int jj =0;
   while (kk > 0) {
     ifile.read(&buffer, sz);
-    scrambled = buffer ^ scramb[kk % 8]; 
+    scrambled = buffer ^ seq[kk % seq_length]; 
     ofile.write(&scrambled, sz);
     kk -= 1;
     jj += 1;
