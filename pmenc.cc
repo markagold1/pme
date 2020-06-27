@@ -4,7 +4,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <cmath>
 #include "lfsr.h"
+#include "coefs.h"
 
 int main ( int argc, char **argv )
 {
@@ -63,10 +65,9 @@ int main ( int argc, char **argv )
   std::cout << std::endl;
 
   // Scrambler
-  const int seq_length = 128;
-  int degree = 42;
+  int degree = int(std::log2(taps));
+  std::cout << "degree=" << degree << std::endl;
   uint64_t fill = ifill & (1ull << degree) - 1;
-  uint64_t taps = (1ull << 42) + (1ull << 40) + (1ull << 37) + (1ull << 35) + 1;
   const int jump = 987654;
   lfsr msrg(taps, ifill, "msrg");
   std::vector<char> seq;
