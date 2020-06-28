@@ -1,3 +1,7 @@
+/*
+ *  Poor man's encryption/decryption utility
+*/
+
 #include <limits>
 #include <iostream>
 #include <ios>
@@ -11,7 +15,7 @@
 int main ( int argc, char **argv )
 {
   if (argc < 3 || argc > 4) {
-    std::cerr << "Usage: pmenc <infile> <outfile> <password>" << std::endl;
+    std::cerr << "Usage: pme <infile> <outfile> <password>" << std::endl;
     return 1;
   }
 
@@ -19,7 +23,7 @@ int main ( int argc, char **argv )
   inargs.assign(argv + 1, argv + argc);
   std::string infile = inargs[0];
   std::string outfile = inargs[1];
-  std::string password = "No password given";
+  std::string password = "None given";
   if (argc == 4) {
     password = inargs[2];
     password += "00000000";
@@ -48,8 +52,6 @@ int main ( int argc, char **argv )
   std::cout << "File size in bytes: " << length << std::endl;
 
   // Get password
-  std::cout << "Password size: " << password.size() << std::endl;
-  char magic[8] = {0x35, 0x75, 0x65, 0x7a, 0x53, 0x04, 0x6c, 0x77};
   char scramb[8] = {0,0,0,0,0,0,0,0};
   uint64_t ifill = 0;
   if (argc == 4) {
@@ -68,7 +70,6 @@ int main ( int argc, char **argv )
   int degree = int(std::log2(taps));
   std::cout << "degree=" << degree << std::endl;
   uint64_t fill = ifill & (1ull << degree) - 1;
-  const int jump = 987654;
   lfsr msrg(taps, ifill, "msrg");
   std::vector<char> seq;
   for (int ii = 0; ii < seq_length; ++ii) {

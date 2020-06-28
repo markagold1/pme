@@ -1,1 +1,1 @@
-g++ -static pmenc.cc -o pmenc.exe
+g++ -static pme.cc -o pme
