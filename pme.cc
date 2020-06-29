@@ -26,8 +26,10 @@ int main ( int argc, char **argv )
   std::string password = "None given";
   if (argc == 4) {
     password = inargs[2];
-    password += "00000000";
-    password = password.substr(0,8);
+    while (password.size() < sizeof(magic)) {
+      password += "00000000";
+    }
+    password = password.substr(0, sizeof(magic));
   }
 
   std::cout << "Num args: " << inargs.size() << std::endl;
@@ -52,19 +54,13 @@ int main ( int argc, char **argv )
   std::cout << "File size in bytes: " << length << std::endl;
 
   // Get password
-  char scramb[8] = {0,0,0,0,0,0,0,0};
   uint64_t ifill = 0;
   if (argc == 4) {
     for (unsigned int ii = 0; ii < password.size(); ++ii) {
-      scramb[ii] = password[ii] ^ magic[ii];
-      ifill = (ifill << 8) + scramb[ii];
+      char scramb = password[ii] ^ magic[ii];
+      ifill = (ifill << 8) + scramb;
     }
   }
-  std::cout << "Scrambling integer: ";
-  for (int ii = 0; ii < 8; ++ii) {
-    std::cout << scramb[ii];
-  }
-  std::cout << std::endl;
 
   // Scrambler
   int degree = int(std::log2(taps));
@@ -93,17 +89,12 @@ int main ( int argc, char **argv )
   }
 
   // Scramble
-  long sz = 1;
   char buffer;
-  int kk = length;
-  char scrambled;
-  int jj =0;
-  while (kk > 0) {
-    ifile.read(&buffer, sz);
-    scrambled = buffer ^ seq[kk % seq_length]; 
-    ofile.write(&scrambled, sz);
-    kk -= 1;
-    jj += 1;
+  int kk, jj;
+  for (kk = length, jj = 0; kk > 0; --kk, ++jj) {
+    ifile.read(&buffer, 1);
+    buffer ^= seq[kk % seq_length]; 
+    ofile.write(&buffer, 1);
   }
 
   ofile.close();
