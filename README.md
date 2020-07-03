@@ -1,7 +1,7 @@
 ﻿Lightweight file encryption and decryption utility
 
 # What is it?
-PME is a lightweight file encryption and decryption command line utility. It is written in C++ using only the Standard Library and no external depencies. PME has been built and tested on Windows 10 and Ubuntu on x86 architecture. Built with Gnu gcc.
+PME is a lightweight file encryption and decryption command line utility. It's written in C++ and uses only Standard Library calls so there are no external depencies. PME has been built and tested on Windows 10 and Ubuntu on x86 architecture. Built with Gnu gcc.
 
 In this repository you'll find:
 * C++ source code
@@ -12,7 +12,7 @@ In this repository you'll find:
 # Description
 * **infile** input file to be encrypted or decrypted
 * **outfile** output file
-* **password** password (key) to encrypt or decrypt with
+* **password** key used to encrypt or decrypt a file
 # Build
 * Run make.bat (simple 1-liner, runs on both Windows and Linux)
 # Test
